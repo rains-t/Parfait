@@ -11,13 +11,16 @@ def username_taken(user):
     with open(r'C:\Users\Public\Hashed Passwords\Hashed.txt', 'r') as file:
     #moving to start of file
         file.seek(0)
-        data = json.loads(file.read())
-        for username in data:
-            if user.lower() == username.lower():
-                return True            
+        try:
+            data = json.loads(file.read())
+            for username in data:
+                if user.lower() == username.lower():
+                    return True     
+        except:
+            return      
     
 
-def create_username():
+def account_creation():
     print('Please enter a username.\nValid username contains only letters \nand numbers, and no spaces.')
     valid = False
     invalid = False
@@ -107,6 +110,8 @@ def generate_password():
 def store_user_and_hashed_pw(user, hashed_pw):
        #ADD USER STORE TO THIS, CREATE LINES FOR USER/PASS
        #USE JSON FOR STORING DICTS
+    #added
+    # user = user.lower()
     hashed_pw = hashed_pw.decode('utf-8')
     pw_dict = {user:hashed_pw}
 
@@ -153,7 +158,29 @@ def authenticate(plaintext_password, hashed_password):
     #checking the hashed password, bcrypt has already saved the salt to the hash itself
     return bcrypt.checkpw(plaintext_password.encode('utf-8'), hashed_password)
 
-username = create_username()
+def locate_hashed_pw(username, plaintext_password):
+    #if user or pass comes back incorrect, kick back False and throw up
+    #error that user or pass is incorrect
+    #place this function within authenticate function
+    #locate user first, then go off of user for password
+    with open(r'C:\Users\Public\Hashed Passwords\Hashed.txt', 'r') as file:
+        user_located = False
+        file.seek(0)
+        data = json.loads(file.read())
+        print(data)
+        print(username.lower())
+        for user in data:
+            print(user)
+            if username.lower() == user.lower():
+                user_located = True
+        if user_located:
+            print('x')
+            
+                
+
+account_creation()
+                 
+# print(locate_hashed_pw('jason','x'))
 
 
 # store_user_and_hashed_pw('jason', b'$2b$08$1uAGmTe2XDK/i75GZzjMS.dACbre19xy3707WDQ.UHy4W5dmGRSce' )
