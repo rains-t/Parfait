@@ -3,8 +3,7 @@ import secrets
 import string
 import bcrypt
 import json
-#need to wait to do check availabilty, need to first store user hashed passwords
-#in a more efficient way using json and dictionary k,v pairs
+
 def username_taken(user):
     '''Check if username is taken, returns True if username already 
     located in database'''
@@ -58,29 +57,7 @@ def account_creation():
             store_user_and_hashed_pw(user, password)
 
             valid = True
-            
-        
-        
-        # for character in user:
-        #     if character not in string.ascii_letters + string.digits:
-        #         invalid = True
-        #         continue
 
-        # if invalid == True:
-        #     print('Invalid username, please try again.')
-        #     user = input('Enter username:')
-        #     continue
-            
-                
-                
-            
-        # else:
-        #     Valid = True
-                
-
-                #for character causing each character to return error,
-                #need to find a way to stop as soon as it finds a single
-                #error
 
 
             
@@ -175,19 +152,30 @@ def locate_hashed_pw(username):
 def log_in(username, plaintext_password):
     '''verifies a username is valid, finds hashed password and then verifies
     against the plain text password entered'''
+    #check if username matches reference DB and return hashed password
     credentials = locate_hashed_pw(username)
     if not credentials == False:
-        #True or False based on if password matches hashed password
+        #if username matches, authenticate password against hashed password
+        #credentials now = True or False
         credentials =  authenticate(plaintext_password, credentials)
+        #return True or False
+        return credentials
+    else:
+        #return False
+        return credentials
+
+
         
         
 
-    if credentials == False:
-        #returns if either username or password is incorrect
-        return('invalid username or password.')
+    # if credentials == False:
+    #     #returns if either username or password is incorrect
+    #     return credentials
 
-
-                
+#print(locate_hashed_pw('striker'))
+#print(authenticate('Oo46870466{',b'$2b$08$XBgHn2waRFDquuGTAMRNK.oJp.XmjiP/3qWzgbZCCZgUkj9Ke4LlS' ))
+#print(log_in('striker', 'Oo46870466{'))       
+#account_creation()
 
 
 
