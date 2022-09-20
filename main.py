@@ -5,27 +5,25 @@ import bcrypt
 import json
 #need to wait to do check availabilty, need to first store user hashed passwords
 #in a more efficient way using json and dictionary k,v pairs
-# def check_availability(user):
-#     with open(r'C:\Users\Public\Hashed Passwords\Hashed.txt', 'r') as f:
-#     #moving to start of file
-#         f.seek(0)
-#         #reading file
-#         data = f.read(100)
-#         #adds new line if file has entries
-#         if len(data) > 0:
-            
+def username_taken(user):
+    '''Check if username is taken, returns True if username already 
+    located in database'''
+    with open(r'C:\Users\Public\Hashed Passwords\Hashed.txt', 'r') as file:
+    #moving to start of file
+        file.seek(0)
+        data = json.loads(file.read())
+        for username in data:
+            if user.lower() == username.lower():
+                return True            
     
 
 def create_username():
-    print('Valid username contains only \nletters and numbers, and no spaces.')
+    print('Please enter a username.\nValid username contains only letters \nand numbers, and no spaces.')
     valid = False
     invalid = False
-    count = 0
     user = input('Enter username:')
-    user = str(user)
-    char_list = list(user)
+    user = str(user) 
     while valid == False:
-        print(len(user))
         if len(user) > 10 or len(user) < 3:
             #check username length
             print('Username size incorrect.\nSize should be more than 3 characters \nand less than 10 characters. \nPlease try again.')
@@ -42,11 +40,22 @@ def create_username():
             invalid = False
             user = input('Enter username:')
             continue
-        
+
+        if username_taken(user) == True:
+            print('Username already taken, please try again.')
+            user = input('Enter username:')
+            continue
         
         else:
+            #generating new password
+            password = generate_password()
+            print(f"Username is available.\nYour username is: {user}\nPassword is: {password}")
+            #store username and password in file
+            password = hash_password(password)
+            store_user_and_hashed_pw(user, password)
+
             valid = True
-            print(invalid)
+            
         
         
         # for character in user:
@@ -77,7 +86,7 @@ def create_username():
                 
 
         
-    return user
+    return 
         
 
 
@@ -120,6 +129,7 @@ def store_user_and_hashed_pw(user, hashed_pw):
             #if error occured between deletion and insertion feasibly there could be
             #a huge bug where all data on passwords gets lost without being replaced, so this
             #would not be a stable option for a server
+            #add a password save backup before this step
             file.truncate(0)
             #moving back to start for no whitespace
             file.seek(0)
@@ -128,16 +138,6 @@ def store_user_and_hashed_pw(user, hashed_pw):
             
         
 
-
-    with open(r'C:\Users\Public\Hashed Passwords\Hashed.txt', 'a+') as file:
-        #moving to start of file
-        file.seek(0)
-        #reading file
-        data = file.read(100)
-        #adds new line if file has entries
-        # if len(data) > 0:
-        #     file.write("\n")
-        # file.write(f"{user}: {hashed_pw}")
 
 
 #Hashing and salting password
@@ -153,10 +153,11 @@ def authenticate(plaintext_password, hashed_password):
     #checking the hashed password, bcrypt has already saved the salt to the hash itself
     return bcrypt.checkpw(plaintext_password.encode('utf-8'), hashed_password)
 
-# username = create_username()
-# print(username)
+username = create_username()
 
-store_user_and_hashed_pw('jason', b'$2b$08$1uAGmTe2XDK/i75GZzjMS.dACbre19xy3707WDQ.UHy4W5dmGRSce' )
+
+# store_user_and_hashed_pw('jason', b'$2b$08$1uAGmTe2XDK/i75GZzjMS.dACbre19xy3707WDQ.UHy4W5dmGRSce' )
+
 
 # user = input('Enter username:')
 # password = generate_password()
