@@ -111,7 +111,7 @@ def store_user_and_hashed_pw(user, hashed_pw):
        #ADD USER STORE TO THIS, CREATE LINES FOR USER/PASS
        #USE JSON FOR STORING DICTS
     #added
-    # user = user.lower()
+    user = user.lower()
     hashed_pw = hashed_pw.decode('utf-8')
     pw_dict = {user:hashed_pw}
 
@@ -155,10 +155,11 @@ def hash_password(plaintext_password):
 def authenticate(plaintext_password, hashed_password):
     '''checks the hashed password taking the plaintext_password and the hashed password 
     as arguments'''
+
     #checking the hashed password, bcrypt has already saved the salt to the hash itself
     return bcrypt.checkpw(plaintext_password.encode('utf-8'), hashed_password)
 
-def locate_hashed_pw(username, plaintext_password):
+def locate_hashed_pw(username):
     #if user or pass comes back incorrect, kick back False and throw up
     #error that user or pass is incorrect
     #place this function within authenticate function
@@ -167,18 +168,28 @@ def locate_hashed_pw(username, plaintext_password):
         user_located = False
         file.seek(0)
         data = json.loads(file.read())
-        print(data)
-        print(username.lower())
         for user in data:
-            print(user)
             if username.lower() == user.lower():
                 user_located = True
         if user_located:
-            print('x')
+            return data[user].encode('utf-8')
+        else:
+            return False
             
+def log_in(username, plaintext_password):
+    credentials = locate_hashed_pw(username)
+    if not credentials == False:
+        credentials =  authenticate(plaintext_password, credentials)
+        print(credentials)
+        
+
+    if credentials == False:
+        return('invalid username or password.')
+
+
                 
 
-account_creation()
+print(log_in('Carmen', 'y23574736!'))
                  
 # print(locate_hashed_pw('jason','x'))
 
