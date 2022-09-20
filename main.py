@@ -85,10 +85,6 @@ def account_creation():
 
             
         
-                
-                
-
-        
     return 
         
 
@@ -108,14 +104,12 @@ def generate_password():
     return password
 
 def store_user_and_hashed_pw(user, hashed_pw):
-       #ADD USER STORE TO THIS, CREATE LINES FOR USER/PASS
-       #USE JSON FOR STORING DICTS
-    #added
+    '''stores username and hashed password in a text file as a dictionary'''
     user = user.lower()
     hashed_pw = hashed_pw.decode('utf-8')
     pw_dict = {user:hashed_pw}
 
-    #a+
+    
     with open(r'C:\Users\Public\Hashed Passwords\Hashed.txt', 'r+') as file:
         file.seek(0)
         data = file.read(1)
@@ -145,11 +139,11 @@ def store_user_and_hashed_pw(user, hashed_pw):
 
 
 
-#Hashing and salting password
+
 def hash_password(plaintext_password):
+    '''salts and hashes a plain text password'''
     #Hash the password
     #gensalt(slowness_level)
-    
     return bcrypt.hashpw(plaintext_password.encode('utf-8'), bcrypt.gensalt(8))
 
 def authenticate(plaintext_password, hashed_password):
@@ -160,6 +154,8 @@ def authenticate(plaintext_password, hashed_password):
     return bcrypt.checkpw(plaintext_password.encode('utf-8'), hashed_password)
 
 def locate_hashed_pw(username):
+    '''locates a username to verify it is in the database, if true
+    sends back the hashed version of their password'''
     #if user or pass comes back incorrect, kick back False and throw up
     #error that user or pass is incorrect
     #place this function within authenticate function
@@ -177,32 +173,21 @@ def locate_hashed_pw(username):
             return False
             
 def log_in(username, plaintext_password):
+    '''verifies a username is valid, finds hashed password and then verifies
+    against the plain text password entered'''
     credentials = locate_hashed_pw(username)
     if not credentials == False:
+        #True or False based on if password matches hashed password
         credentials =  authenticate(plaintext_password, credentials)
-        print(credentials)
+        
         
 
     if credentials == False:
+        #returns if either username or password is incorrect
         return('invalid username or password.')
 
 
                 
-
-print(log_in('Carmen', 'y23574736!'))
-                 
-# print(locate_hashed_pw('jason','x'))
-
-
-# store_user_and_hashed_pw('jason', b'$2b$08$1uAGmTe2XDK/i75GZzjMS.dACbre19xy3707WDQ.UHy4W5dmGRSce' )
-
-
-# user = input('Enter username:')
-# password = generate_password()
-# print(f"Username: {user} \nPassword: {password}")
-
-# hash = hash_password(password)
-# store_hashed_pw(user, hash)
 
 
 
