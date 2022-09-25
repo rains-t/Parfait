@@ -16,13 +16,112 @@ def username_taken(user):
                 if user.lower() == username.lower():
                     return True     
         except:
-            return      
+            return   
+
+
+def create_password():
+    '''Password must conform to generated password standards, at least: one uppercase
+     letter, one lowercase letter, 8 digits and one symbol, eg. Ab12345678!
+     can contain more than one of each.'''
+     #once done with create plassword feature, remove generate password addition
+     #in create account function, and replace with create password function
+     #generate password will be used solely for password recovery
+    # print('Please create a password.\nMust contain one capital, one lowercase, 8 digits and one symbol')
+    # password = input('Password: ')
+    print('Please create a new password.\nMust contain one capital, one lowercase,\n8 digits and one symbol')
+    
+    valid = False
+    while valid == False:
+        #flags for valid password
+        invalid = True
+        upper = False
+        lower = False
+        digits = False
+        symbol = False
+        count = 0
+        password = input('Password: ')
+
+        
+        #checking that the number of digits is at least 8
+        for digit in password:
+            if digit in string.digits:
+                count += 1
+                if count >= 8:
+                    digits = True
+                    # valid = True
+
+        #checking for an uppercase character
+        for upper_chars in password:
+            if upper_chars in string.ascii_uppercase:
+                upper = True
+
+        #checking for a lowercase character
+        for lowercase_chars in password:
+            if lowercase_chars in string.ascii_lowercase:
+                lower = True
+        #checking for a symbol
+        for symbols in password:
+            if symbols in string.punctuation:
+                symbol = True
+
+        #if all flags are True allow password to continue to password matching
+        if digits and symbol and lower and upper:
+            invalid = False
+
+        #if any flag is False restart the process
+        if invalid:
+            print('Password invalid, please try again.')
+            continue
+        
+        #password matching after inputting valid password
+        if not invalid:
+            print('Please re-enter same password.')
+            second_password = input('Password: ')
+
+            if second_password == password:
+                print('Passwords matched.')
+                return password
+                
+
+            else:
+                print('Passwords did not match\nPlease create a new password.')
+                invalid = True
+                continue
+            
+
+
+            
+
+        
+
+
+                
+    
+        
+        # if len(password) < 11:
+        #     print('Password incorrect, please try again')
+        #     password = ('Password: ')
+        #     continue
+
+
+
+        
+print(create_password())
+
+    
+
+
+
+
+
+
     
 
 def account_creation():
     print('Please enter a username.\nValid username contains only letters \nand numbers, and no spaces.')
     valid = False
     invalid = False
+    #invalid starting as false is not clear, but function works for now so fix later
     user = input('Enter username:')
     user = str(user) 
     while valid == False:
