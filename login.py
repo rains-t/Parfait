@@ -20,10 +20,6 @@ while connection == False:
     else:
         print('connected')
         
-while connection == True:
-    message = input('Enter a message:')
-    if message == exit:
-        print('Ending connection')
-        break
+
 
 
