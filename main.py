@@ -108,13 +108,13 @@ def account_creation():
                 invalid = True
                 #conditional for following loop to use    
         
-        if invalid == True:
+        if invalid:
             print('Invalid username, please try again.')
             invalid = False
             user = input('Enter username:')
             continue
 
-        if username_taken(user) == True:
+        if username_taken(user):
             print('Username already taken, please try again.')
             user = input('Enter username:')
             continue
@@ -221,7 +221,7 @@ def log_in(username, plaintext_password):
         return credentials
 
 
-######################START MODULE TESTING PACKAGE###################################
+#######################MODULE TESTING PACKAGE####################################
 
 
 def test_password_store(user, plaintext_password):
@@ -295,15 +295,17 @@ def test_account_login():
                 credentials =  authenticate(password, credentials)
                 #return True or False
                 if credentials:
-                    print(f'{user} connected')
+                    comment = f'{user} connected'
+                    return comment
                 else: 
-                    print(f'{user} connection failed')
+                    error = f'{user} connection failed'
+                    return error
             else:
                 #return False
-                print(f'{user} connection failed')
+                error = f'{user} connection failed'
+                return error
             
-######################END MODULE TESTING PACKAGE#####################################
-
+#######################MODULE TESTING PACKAGE######################################
 
 
 
