@@ -1,6 +1,6 @@
 import sys
 from PyQt5.QtCore import Qt, QSize
-from PyQt5.QtGui import QIcon, QPalette, QColor
+from PyQt5.QtGui import QIcon, QPalette, QColor, QFont
 from PyQt5.QtWidgets import *
 from main import *
 
@@ -26,9 +26,11 @@ class LogWindow(QDialog):
         self.textPass = QLineEdit()
         self.textPass.setObjectName('password')
         self.textPass.setEchoMode(QLineEdit.Password)
-        self.logButton = QPushButton('Log in', self)
+        self.logButton = QPushButton('Log In', self)
+        self.logButton.setFont(QFont('Arial',9))
         self.logButton.clicked.connect(self.handleLogin)
-        self.createAccount = QPushButton('Create Account')
+        self.createAccount = QPushButton('Sign Up')
+        self.createAccount.setFont(QFont('Arial',9))
         self.createAccount.clicked.connect(self.handleCreate)
         #main layout 
         layout = QGridLayout(self)
@@ -44,6 +46,9 @@ class LogWindow(QDialog):
         self.showPass.stateChanged.connect(self.checkedBox)
         checkLayout.addWidget(self.showPass)
         #self.showpass.toggled.connect(self.textPass.setEchoMode(QLineEdit.Password))
+
+        signLabel = QLabel('Sign in to continue')
+        signLabel.setFont(QFont('Arial', 15))
         
 
         #layout to hold the log in information
@@ -62,6 +67,7 @@ class LogWindow(QDialog):
         layout.addWidget(self.createAccount,4,3)
         #creating blank space with a blank QWidget
         layout.addWidget(QWidget(),1,0)
+        layout.addWidget(signLabel,1,2,1,3)
         layout.addWidget(QWidget(),1,4)
         layout.addWidget(QWidget(),4,0)
         layout.addWidget(QWidget(),5,0)
