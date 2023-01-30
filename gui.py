@@ -13,52 +13,53 @@ class Color(QWidget):
         palette.setColor(QPalette.Window, QColor(color))
         self.setPalette(palette)
 
-# class ExecutiveApp(QWidget):
-#     def __init__(self):
-#         super().__init__()
-#         self.setWindowTitle('Executive Application')
-#         self.setFixedSize(500,300)
-#         self.attemptLogIn()
-        
-
-
-
-
-
-#     def attemptLogIn(self):
-#         self.logwindow = LogWindow()
-#         self.logwindow.show()
-
-#     def sendToMain(self):
-        
-#         self.mainApp = MainWindow()
-#         self.mainApp.show()
-
-            
 
 class LogWindow(QDialog):
     def __init__(self):
         super().__init__()
         self.setWindowTitle('Log in')
+        #setting color
+        pal = QPalette()
+        role = QPalette.Background
+        pal.setColor(role, QColor(255, 251, 162))
+        self.setPalette(pal)
+
+        #widget colorscheme
+        widgetPal = QPalette()
+        widgetPal.setColor(role,QColor(100,99,82))
         
         #setting fixed window size
         self.setFixedSize(QSize(375,450))
         self.userLabel = QLabel('Username')
         self.passLabel = QLabel('Password')
+
         self.textName = QLineEdit()
+        self.textName.setAutoFillBackground(True)
+        self.textName.setBackgroundRole(QPalette.Base)
+        #using this palette for all widgets
+        p = self.textName.palette() 
+        p.setColor(self.textName.backgroundRole(), QColor(255,253,208))
+        self.textName.setPalette(p)
         self.textName.setObjectName('username')
+
         self.textPass = QLineEdit()
+        self.textPass.setAutoFillBackground(True)
+        self.textPass.setPalette(p)
         self.textPass.setObjectName('password')
         self.textPass.setEchoMode(QLineEdit.Password)
+
         self.logButton = QPushButton('Log In', self)
+        self.logButton.setAutoFillBackground(True)
+        self.logButton.setPalette(p)
         self.logButton.setFont(QFont('Arial',9))
         self.logButton.clicked.connect(self.handleLogin)
 
-        
-
         self.createAccount = QPushButton('Sign Up')
+        self.createAccount.setAutoFillBackground(True)
+        self.createAccount.setPalette(p)
         self.createAccount.setFont(QFont('Arial',9))
         self.createAccount.clicked.connect(self.handleCreate)
+
         #main layout 
         layout = QGridLayout(self)
         
@@ -69,6 +70,15 @@ class LogWindow(QDialog):
         checkLayout = QHBoxLayout()
         #checkLayout.addWidget(QWidget())
         self.showPass = QCheckBox('&Show password')
+        
+        #allowing the checkbox to show background color whenever unchecked
+        #VERY difficult code to find
+        self.showPass.setStyleSheet("QCheckBox::indicator:unchecked"
+                               "{"
+                               "Background : rgb(255,253,208) ;"
+                               "}")
+
+        #self.showPass.setPalette(pal)
         self.showPass.setCheckable(True)
         self.showPass.stateChanged.connect(self.checkedBox)
         checkLayout.addWidget(self.showPass)
@@ -100,12 +110,9 @@ class LogWindow(QDialog):
         layout.addWidget(QWidget(),4,0)
         layout.addWidget(QWidget(),5,0)
         layout.addWidget(QWidget(),6,0)
-
         #adding checkbox to main layout
         layout.addLayout(checkLayout,3,2)
-        #layout.setRowStretch(2,4)
-        #This is to add a QCheckBox later to allow echomode to be set to off for password if desired
-        #self.textPass.setEchoMode(False)
+        
 
 
     
@@ -118,10 +125,9 @@ class LogWindow(QDialog):
         if log_in(username, password) == True:
             QMessageBox.information(self, ' ', 'logging in')
             self.close()
+            #send to main window if log in verified
             self.openMainWindow()
-            
-            #return False
-            #send to main window
+
         else:
             QMessageBox.warning(self, 'Error', 'Invalid username or password')
             #in future create a counter for if username == valid and password False 4 times in a row
@@ -140,20 +146,17 @@ class LogWindow(QDialog):
             self.textPass.setEchoMode(QLineEdit.Password)
 
     def openMainWindow(self):
-        self.closeWindow()
+        self.close()
         self.mainApp = MainWindow()
         self.mainApp.show()
-        
-
-    def closeWindow(self):
-        self.close()
 
 
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle('Main Application')
+        self.setWindowTitle('Parfait')
+        self.setMinimumSize(500,500)
         widget = QWidget()
         self.setCentralWidget(widget)
 
