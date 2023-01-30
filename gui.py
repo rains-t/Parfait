@@ -36,6 +36,16 @@ class LogWindow(QDialog):
         #layout to contain the labels (username/password)
         labelLayout = QVBoxLayout()
 
+        #layout to contain toggle for echo mode
+        checkLayout = QHBoxLayout()
+        #checkLayout.addWidget(QWidget())
+        self.showPass = QCheckBox('&Show password')
+        self.showPass.setCheckable(True)
+        self.showPass.stateChanged.connect(self.checkedBox)
+        checkLayout.addWidget(self.showPass)
+        #self.showpass.toggled.connect(self.textPass.setEchoMode(QLineEdit.Password))
+        
+
         #layout to hold the log in information
         logLayout = QVBoxLayout()    
         logLayout.addWidget(self.textName)
@@ -48,24 +58,19 @@ class LogWindow(QDialog):
 
         layout.addLayout(labelLayout,1,1)
         layout.addLayout(logLayout,1,2,1,2)
-        layout.addWidget(self.logButton,2,2)
-        layout.addWidget(self.createAccount,2,3)
+        layout.addWidget(self.logButton,3,2)
+        layout.addWidget(self.createAccount,3,3)
         #creating blank space with a blank QWidget
         layout.addWidget(QWidget(),1,0)
         layout.addWidget(QWidget(),1,4)
+
+        #adding checkbox to main layout
+        layout.addLayout(checkLayout,2,2)
+        #layout.setRowStretch(2,4)
         #This is to add a QCheckBox later to allow echomode to be set to off for password if desired
         #self.textPass.setEchoMode(False)
 
-        
-
-        
-
-        
-
-
-
-
-
+    
 
 
     def handleLogin(self):
@@ -85,6 +90,12 @@ class LogWindow(QDialog):
         if True:
             QMessageBox.information(self,' ','Account created')
 
+    def checkedBox(self):
+        if self.showPass.isChecked():
+            self.textPass.setEchoMode(False)
+
+        else:
+            self.textPass.setEchoMode(QLineEdit.Password)
         
         
 
