@@ -7,7 +7,7 @@ import json
 def username_taken(user):
     '''Check if username is taken, returns True if username already 
     located in database'''
-    with open(r'C:\Users\Public\Hashed Passwords\Hashed.txt', 'r') as file:
+    with open(r'C:\Users\Public\Hashed Passwords\Hashed.txt', 'a+') as file:
     #moving to start of file
         file.seek(0)
         try:
@@ -133,12 +133,12 @@ def account_creation():
     return 
         
 def generate_password():
-    '''generates random uppercase + lowercase + 8 numbers followed by a punctuation
+    '''generates random uppercase + lowercase + 9 numbers followed by a punctuation
     character password'''
     password = None
-    while len(str(password)) != 11:
+    while len(str(password)) != 12:
         password = ''.join(secrets.choice(string.ascii_lowercase) for i in range(2))
-        password = password + ''.join(secrets.choice(string.digits) for i in range(8))
+        password = password + ''.join(secrets.choice(string.digits) for i in range(9))
         password = password + ''.join(secrets.choice(string.punctuation) for i in range(1))
         password = password.capitalize()
     return password
@@ -306,7 +306,6 @@ def test_account_login():
                 return error
             
 #######################MODULE TESTING PACKAGE######################################
-
 
 
 
