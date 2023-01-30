@@ -56,19 +56,23 @@ class LogWindow(QDialog):
         labelLayout.addWidget(self.passLabel)
         labelLayout.setSpacing(25)
 
-        layout.addLayout(labelLayout,1,1)
-        layout.addLayout(logLayout,1,2,1,2)
-        layout.addWidget(self.logButton,3,2)
-        layout.addWidget(self.createAccount,3,3)
+        layout.addLayout(labelLayout,2,1)
+        layout.addLayout(logLayout,2,2,1,2)
+        layout.addWidget(self.logButton,4,2)
+        layout.addWidget(self.createAccount,4,3)
         #creating blank space with a blank QWidget
         layout.addWidget(QWidget(),1,0)
         layout.addWidget(QWidget(),1,4)
+        layout.addWidget(QWidget(),4,0)
+        layout.addWidget(QWidget(),5,0)
+        layout.addWidget(QWidget(),6,0)
 
         #adding checkbox to main layout
-        layout.addLayout(checkLayout,2,2)
+        layout.addLayout(checkLayout,3,2)
         #layout.setRowStretch(2,4)
         #This is to add a QCheckBox later to allow echomode to be set to off for password if desired
         #self.textPass.setEchoMode(False)
+
 
     
 
