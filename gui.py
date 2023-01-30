@@ -2,7 +2,7 @@ import sys
 from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtGui import QIcon, QPalette, QColor, QFont
 from PyQt5.QtWidgets import *
-from main import *
+from PCore import *
 
 class Color(QWidget):
     def __init__(self,color):
@@ -13,10 +13,34 @@ class Color(QWidget):
         palette.setColor(QPalette.Window, QColor(color))
         self.setPalette(palette)
 
+# class ExecutiveApp(QWidget):
+#     def __init__(self):
+#         super().__init__()
+#         self.setWindowTitle('Executive Application')
+#         self.setFixedSize(500,300)
+#         self.attemptLogIn()
+        
+
+
+
+
+
+#     def attemptLogIn(self):
+#         self.logwindow = LogWindow()
+#         self.logwindow.show()
+
+#     def sendToMain(self):
+        
+#         self.mainApp = MainWindow()
+#         self.mainApp.show()
+
+            
+
 class LogWindow(QDialog):
     def __init__(self):
         super().__init__()
         self.setWindowTitle('Log in')
+        
         #setting fixed window size
         self.setFixedSize(QSize(375,450))
         self.userLabel = QLabel('Username')
@@ -29,6 +53,9 @@ class LogWindow(QDialog):
         self.logButton = QPushButton('Log In', self)
         self.logButton.setFont(QFont('Arial',9))
         self.logButton.clicked.connect(self.handleLogin)
+
+        
+
         self.createAccount = QPushButton('Sign Up')
         self.createAccount.setFont(QFont('Arial',9))
         self.createAccount.clicked.connect(self.handleCreate)
@@ -90,6 +117,10 @@ class LogWindow(QDialog):
 
         if log_in(username, password) == True:
             QMessageBox.information(self, ' ', 'logging in')
+            self.close()
+            self.openMainWindow()
+            
+            #return False
             #send to main window
         else:
             QMessageBox.warning(self, 'Error', 'Invalid username or password')
@@ -107,6 +138,26 @@ class LogWindow(QDialog):
 
         else:
             self.textPass.setEchoMode(QLineEdit.Password)
+
+    def openMainWindow(self):
+        self.closeWindow()
+        self.mainApp = MainWindow()
+        self.mainApp.show()
+        
+
+    def closeWindow(self):
+        self.close()
+
+
+
+class MainWindow(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle('Main Application')
+        widget = QWidget()
+        self.setCentralWidget(widget)
+
+
         
         
 
@@ -119,13 +170,18 @@ class LogWindow(QDialog):
         
 
 
+def main():
+    app = QApplication(sys.argv)
+    window = LogWindow()
+    window.show()
+    sys.exit(app.exec())
+    
+
+if __name__ == "__main__":
+    main()
 
         
 
 
-app = QApplication(sys.argv)
-window = LogWindow()
-window.show()
-app.exec()
 
 
