@@ -69,6 +69,7 @@ class LogWindow(QDialog):
         layout.addWidget(QWidget(),1,0)
         layout.addWidget(signLabel,1,2,1,3)
         layout.addWidget(QWidget(),1,4)
+        layout.addWidget(QWidget(),2,5)
         layout.addWidget(QWidget(),4,0)
         layout.addWidget(QWidget(),5,0)
         layout.addWidget(QWidget(),6,0)
@@ -98,7 +99,7 @@ class LogWindow(QDialog):
     def handleCreate(self):
         #send to account creation page
         if True:
-            QMessageBox.information(self,' ','Account created')
+            QMessageBox.information(self,'Success','Account created')
 
     def checkedBox(self):
         if self.showPass.isChecked():
