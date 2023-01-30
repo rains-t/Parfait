@@ -18,7 +18,7 @@ class LogWindow(QDialog):
         super().__init__()
         self.setWindowTitle('Log in')
         #setting fixed window size
-        self.setFixedSize(QSize(350,450))
+        self.setFixedSize(QSize(375,450))
         self.userLabel = QLabel('Username')
         self.passLabel = QLabel('Password')
         self.textName = QLineEdit()
@@ -46,12 +46,13 @@ class LogWindow(QDialog):
         labelLayout.addWidget(self.passLabel)
         labelLayout.setSpacing(25)
 
-        layout.addLayout(labelLayout,1,0)
-        layout.addLayout(logLayout,1,1,1,2)
-        layout.addWidget(self.logButton,2,1)
-        layout.addWidget(self.createAccount,2,2)
+        layout.addLayout(labelLayout,1,1)
+        layout.addLayout(logLayout,1,2,1,2)
+        layout.addWidget(self.logButton,2,2)
+        layout.addWidget(self.createAccount,2,3)
         #creating blank space with a blank QWidget
-        layout.addWidget(QWidget(),1,3)
+        layout.addWidget(QWidget(),1,0)
+        layout.addWidget(QWidget(),1,4)
         #This is to add a QCheckBox later to allow echomode to be set to off for password if desired
         #self.textPass.setEchoMode(False)
 
