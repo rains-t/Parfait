@@ -17,7 +17,7 @@ class Color(QWidget):
 class LogWindow(QDialog):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle('Log in')
+        self.setWindowTitle('Parfait')
         #setting color
         pal = QPalette()
         role = QPalette.Background
@@ -30,35 +30,83 @@ class LogWindow(QDialog):
         
         #setting fixed window size
         self.setFixedSize(QSize(375,450))
+
         self.userLabel = QLabel('Username')
         self.userLabel.setFont(QFont('Arial',7))
+
         self.passLabel = QLabel('Password')
         self.passLabel.setFont(QFont('Arial',7))
 
+
         self.textName = QLineEdit()
         self.textName.setAutoFillBackground(True)
-        self.textName.setBackgroundRole(QPalette.Base)
-        #using this palette for all widgets
-        p = self.textName.palette() 
-        p.setColor(self.textName.backgroundRole(), QColor(255,253,208))
-        self.textName.setPalette(p)
-        self.textName.setObjectName('username')
+        self.textName.setStyleSheet("QLineEdit"
+                               "{"
+                               "Border : 1px solid #adadad ;"
+                               "Background : rgb(255,253,208) ;"
+                               "}"
+                               "QLineEdit:hover"
+                               "{"
+                               "Border : 1px solid #637bff ;"
+                               "Background : #dfe5e8 ;"                            
+                               "}")
 
+        self.textName.setObjectName('username')
         self.textPass = QLineEdit()
         self.textPass.setAutoFillBackground(True)
-        self.textPass.setPalette(p)
+        self.textPass.setStyleSheet("QLineEdit"
+                               "{"
+                               "Border : 1px solid #adadad ;"
+                               "Background : rgb(255,253,208) ;"
+                               "}"
+                               "QLineEdit:hover"
+                               "{"
+                               "Border : 1px solid #637bff ;"
+                               "Background : #dfe5e8 ;"                            
+                               "}")
         self.textPass.setObjectName('password')
         self.textPass.setEchoMode(QLineEdit.Password)
 
+
         self.logButton = QPushButton('Log In', self)
         self.logButton.setAutoFillBackground(True)
-        self.logButton.setPalette(p)
+        self.logButton.setStyleSheet("QPushButton"
+                               "{"
+                               
+                               "Border : 1px solid #adadad ;"
+                               "Background : rgb(255,253,208) ;"
+                               "border-radius: 10px;"
+                               "padding : 4px;"
+                               "border-style : outset "
+
+                               "}"
+                               "QPushButton:hover:!pressed"
+                               "{"
+                               "Border : 1px solid #637bff ;"
+                               "Background : #dfe5e8 ;"                               
+                               "}")
         self.logButton.setFont(QFont('Arial',9))
         self.logButton.clicked.connect(self.handleLogin)
 
         self.createAccount = QPushButton('Sign Up')
         self.createAccount.setAutoFillBackground(True)
-        self.createAccount.setPalette(p)
+        self.createAccount.setStyleSheet("QPushButton"
+                               "{"
+                               
+                               "Border : 1px solid #adadad ;"
+                               "Background : rgb(255,253,208) ;"
+                               "border-radius: 10px;"
+                               "padding : 4px;"
+                               "border-style : outset;"
+                               "min-width : 100px;"
+
+                               "}"
+                               "QPushButton:hover:!pressed"
+                               "{"
+                               "Border : 1px solid #637bff ;"
+                               "Background : #dfe5e8 ;"                            
+                               "}")
+        #self.createAccount.setPalette(p)
         self.createAccount.setFont(QFont('Arial',9))
         self.createAccount.clicked.connect(self.handleCreate)
 
@@ -78,8 +126,13 @@ class LogWindow(QDialog):
         #VERY difficult code to find
         self.showPass.setStyleSheet("QCheckBox::indicator:unchecked"
                                "{"
-                               "Border : 1px solid #5A5A5A ;"
+                               "Border : 1px solid #adadad ;"
                                "Background : rgb(255,253,208) ;"
+                               "}"
+                               "QCheckBox::indicator:hover:unchecked"
+                               "{"
+                               "Border : 1px solid #637bff ;"
+                               "Background : #dfe5e8 ;"                            
                                "}")
 
         #self.showPass.setPalette(pal)
@@ -153,6 +206,17 @@ class LogWindow(QDialog):
         self.close()
         self.mainApp = MainWindow()
         self.mainApp.show()
+
+
+    # def buttonPressColor(self):
+    #     self.logButton.setStyleSheet("QPushButton"
+    #                            "{"
+                               
+    #                            "Border : 1px solid #547085 ;"
+    #                            "Background : rgb(134, 169, 194) ;"
+    #                            "border-style : inset "
+
+    #                            "}")
 
 
 
