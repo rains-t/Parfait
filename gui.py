@@ -24,9 +24,6 @@ class LogWindow(QDialog):
         pal.setColor(role, QColor(255, 251, 162))
         self.setPalette(pal)
 
-        #widget colorscheme
-        widgetPal = QPalette()
-        widgetPal.setColor(role,QColor(100,99,82))
         
         #setting fixed window size
         self.setFixedSize(QSize(375,450))
@@ -106,7 +103,6 @@ class LogWindow(QDialog):
                                "Border : 1px solid #637bff ;"
                                "Background : #dfe5e8 ;"                            
                                "}")
-        #self.createAccount.setPalette(p)
         self.createAccount.setFont(QFont('Arial',9))
         self.createAccount.clicked.connect(self.handleCreate)
 
@@ -118,9 +114,9 @@ class LogWindow(QDialog):
 
         #layout to contain toggle for echo mode
         checkLayout = QHBoxLayout()
-        #checkLayout.addWidget(QWidget())
+
         self.showPass = QCheckBox('&Show password')
-        #self.showPass.setFont(QFont, 'Arial', 7)
+
         
         #allowing the checkbox to show background color whenever unchecked
         #VERY difficult code to find
@@ -139,12 +135,10 @@ class LogWindow(QDialog):
         self.showPass.setCheckable(True)
         self.showPass.stateChanged.connect(self.checkedBox)
         checkLayout.addWidget(self.showPass)
-        #self.showpass.toggled.connect(self.textPass.setEchoMode(QLineEdit.Password))
 
         signLabel = QLabel('Sign in to continue')
         signLabel.setFont(QFont('Arial', 15))
         
-
         #layout to hold the log in information
         logLayout = QVBoxLayout()    
         logLayout.addWidget(self.textName)
@@ -171,16 +165,12 @@ class LogWindow(QDialog):
         layout.addLayout(checkLayout,3,2)
         
 
-
-    
-
-
     def handleLogin(self):
         username = self.textName.text()
         password = self.textPass.text()
 
         if log_in(username, password) == True:
-            QMessageBox.information(self, ' ', 'logging in')
+            #QMessageBox.information(self, ' ', 'logging in')
             self.close()
             #send to main window if log in verified
             self.openMainWindow()
@@ -192,8 +182,8 @@ class LogWindow(QDialog):
 
     def handleCreate(self):
         #send to account creation page
-        if True:
-            QMessageBox.information(self,'Success','Account created')
+        self.close()
+        self.openAccountCreationPage()
 
     def checkedBox(self):
         if self.showPass.isChecked():
@@ -207,16 +197,10 @@ class LogWindow(QDialog):
         self.mainApp = MainWindow()
         self.mainApp.show()
 
+    def openAccountCreationPage(self):
+        self.accCreation = AccountCreationPage()
+        self.accCreation.show()
 
-    # def buttonPressColor(self):
-    #     self.logButton.setStyleSheet("QPushButton"
-    #                            "{"
-                               
-    #                            "Border : 1px solid #547085 ;"
-    #                            "Background : rgb(134, 169, 194) ;"
-    #                            "border-style : inset "
-
-    #                            "}")
 
 
 
@@ -227,6 +211,176 @@ class MainWindow(QMainWindow):
         self.setMinimumSize(500,500)
         widget = QWidget()
         self.setCentralWidget(widget)
+
+class AccountCreationPage(QDialog):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle('Parfait')
+
+        #setting bg color
+        pal = QPalette()
+        role = QPalette.Background
+        pal.setColor(role, QColor(255, 251, 162))
+        self.setPalette(pal)
+   
+        #setting fixed window size
+        self.setFixedSize(QSize(375,450))
+        layout = QGridLayout()
+        labelLayout = QVBoxLayout()
+        textLayout = QVBoxLayout()
+        buttonLayout = QHBoxLayout()
+
+        self.setLayout(layout)
+
+        self.userLabel = QLabel('Enter username')
+        self.userLabel.setFont(QFont('Arial',9))
+
+        self.passLabel = QLabel('Enter password')
+        self.passLabel.setFont(QFont('Arial', 9))
+
+        self.retypePassLabel = QLabel('Retype password')
+        self.retypePassLabel.setFont(QFont('Arial', 9))
+
+        pageLabel = QLabel('Create an account')
+        pageLabel.setFont(QFont('Arial', 15))
+
+        self.userName = QLineEdit()
+        self.userName.setFont(QFont('Arial', 9))
+        self.userName.setAutoFillBackground(True)
+        self.userName.setStyleSheet("QLineEdit"
+                               "{"
+                               "Border : 1px solid #adadad ;"
+                               "Background : rgb(255,253,208) ;"
+                               "}"
+                               "QLineEdit:hover"
+                               "{"
+                               "Border : 1px solid #637bff ;"
+                               "Background : #dfe5e8 ;"                            
+                               "}")
+
+        self.userName.setObjectName('username')
+
+        self.userPass = QLineEdit()
+        self.userPass.setEchoMode(QLineEdit.Password)
+        self.userPass.setAutoFillBackground(True)
+        self.userPass.setStyleSheet("QLineEdit"
+                               "{"
+                               "Border : 1px solid #adadad ;"
+                               "Background : rgb(255,253,208) ;"
+                               "}"
+                               "QLineEdit:hover"
+                               "{"
+                               "Border : 1px solid #637bff ;"
+                               "Background : #dfe5e8 ;"                            
+                               "}")
+
+        self.retypeUserPass = QLineEdit()
+        self.retypeUserPass.setEchoMode(QLineEdit.Password)
+        self.retypeUserPass.setAutoFillBackground(True)
+        self.retypeUserPass.setStyleSheet("QLineEdit"
+                               "{"
+                               "Border : 1px solid #adadad ;"
+                               "Background : rgb(255,253,208) ;"
+                               "}"
+                               "QLineEdit:hover"
+                               "{"
+                               "Border : 1px solid #637bff ;"
+                               "Background : #dfe5e8 ;"                            
+                               "}")
+
+        self.createAccButton = QPushButton('Create Account')
+        self.createAccButton.setAutoFillBackground(True)
+        self.createAccButton.setStyleSheet("QPushButton"
+                               "{"
+                               
+                               "Border : 1px solid #adadad ;"
+                               "Background : rgb(255,253,208) ;"
+                               "border-radius: 10px;"
+                               "padding : 4px;"
+                               "border-style : outset;"
+                               "max-width : 200px;"
+
+                               "}"
+                               "QPushButton:hover:!pressed"
+                               "{"
+                               "Border : 1px solid #637bff ;"
+                               "Background : #dfe5e8 ;"                            
+                               "}")
+        self.createAccButton.clicked.connect(self.handleCreate)
+
+        labelLayout.addWidget(self.userLabel)
+        labelLayout.addWidget(self.passLabel)
+        labelLayout.addWidget(self.retypePassLabel)
+
+        textLayout.addWidget(self.userName)
+        textLayout.addWidget(self.userPass)
+        textLayout.addWidget(self.retypeUserPass)
+
+        #adding free space to grid layout
+        layout.addLayout(labelLayout,2,1,1,3)
+        layout.addLayout(textLayout,2,4,1,2)
+        layout.addWidget(QWidget(),1,1)
+        layout.addWidget(QWidget(),4,0)
+        layout.addWidget(QWidget(),5,0)
+        layout.addWidget(self.createAccButton, 4,2,1,3)
+        layout.addWidget(pageLabel,1,2,1,3)
+
+    def handleCreate(self):
+        username = self.userName.text()
+        password = self.userPass.text()
+        retyped_password = self.retypeUserPass.text()
+        valid = False
+        print(username,password,retyped_password)
+        
+        if not validate_username(username):
+            (QMessageBox.warning(self, 'Error', 
+            'Invalid username: username must be between 3 and 10 characters, and contain no spaces or special characters.'))
+
+        if username_taken(username):
+            QMessageBox.warning(self,'Error','Username is already taken.')
+            self.userName.clear()
+            self.userPass.clear()
+            self.retypeUserPass.clear()
+            return
+            
+
+        if not create_password(password):
+            QMessageBox.warning(self,'Error','Password must have at least: 8 digits, contain one uppercase letter, one lowercase letter, and one symbol')
+            self.userPass.clear()
+            self.retypeUserPass.clear()
+            return
+
+        if not retype_password(password,retyped_password):
+            QMessageBox.warning(self,'Error', 'Passwords did not match.')
+            self.userPass.clear()
+            self.retypeUserPass.clear()
+
+            return
+        if not account_creation(username, password):
+            QMessageBox.warning(self,'Error','Something went wrong. Error code: 100')
+            self.userName.clear()
+            self.userPass.clear()
+            self.retypeUserPass.clear()
+            return
+
+        else:
+            QMessageBox.information(self,'Success', 'Account created!')
+            self.userName.clear()
+            self.userPass.clear()
+            self.retypeUserPass.clear()
+            self.close()
+            self.openLoginPage()
+
+    def openLoginPage(self):
+        self.window = LogWindow()
+        self.window.show()
+                                            
+
+
+
+
+
+
 
 
         

@@ -4,6 +4,8 @@ import string
 import bcrypt
 import json
 
+#Parfait core code
+
 def username_taken(user):
     '''Check if username is taken, returns True if username already 
     located in database'''
@@ -19,7 +21,7 @@ def username_taken(user):
             return   
 
 
-def create_password():
+def create_password(password):
     '''Password must conform to generated password standards, at least: one uppercase
      letter, one lowercase letter, 8 digits and one symbol, eg. Ab12345678!
      can contain more than one of each.'''
@@ -28,7 +30,8 @@ def create_password():
      #generate password will be used solely for password recovery
     # print('Please create a password.\nMust contain one capital, one lowercase, 8 digits and one symbol')
     # password = input('Password: ')
-    print('Please create a new password.\nMust contain one capital, one lowercase,\n8 digits and one symbol')
+    #print('Please create a new password.\nMust contain one capital, one lowercase,\n8 digits and one symbol')
+    
     
     valid = False
     while valid == False:
@@ -39,7 +42,7 @@ def create_password():
         digits = False
         symbol = False
         count = 0
-        password = input('Password: ')
+
 
         
         #checking that the number of digits is at least 8
@@ -70,67 +73,71 @@ def create_password():
 
         #if any flag is False restart the process
         if invalid:
-            print('Password invalid, please try again.')
-            continue
+            #send False back to handling application, password is invalid and must be retyped
+            #to standards required
+            return False
+
+        else:
+            #password is valid, send True to handling application
+            #handling application will now need to process retyped_password()
+            return True
         
         #password matching after inputting valid password
-        if not invalid:
-            print('Please re-enter same password.')
-            second_password = input('Password: ')
+        # if not invalid:
+        #     retyped_password(original_pass,retyped_pass)
+            #print('Please re-enter same password.')
+            #second_password = retyped_pass
 
-            if second_password == password:
-                print('Passwords matched\nAccount created.')
-                return password
+            # if second_password == password:
+            #     #print('Passwords matched\nAccount created.')
+            #     return password
                 
 
-            else:
-                print('Passwords did not match\nPlease create a new password.')
-                invalid = True
-                continue
+            # else:
+            #     print('Passwords did not match\nPlease create a new password.')
+            #     invalid = True
+            #     continue
 
-def account_creation():
-    print('Please enter a username.\nValid username contains only letters \nand numbers, and no spaces.')
+def retype_password(original_pass, retyped_pass):
+    '''handling application will check original password against the retyped password
+    this code will kick back True if passwords match, false if passwords do not match'''
+    if original_pass == retyped_pass:
+        return True
+
+    else:
+        return False
+
+def validate_username(username):
+    '''makes sure that username is valid based on this program's standards *contains only letters, numbers
+    ,and no spaces. Returns True if valid, False if invalid.'''
+    user = username
     valid = False
-    invalid = False
-    #invalid flag starting as false is not good practice, but function works for now 
-    # so fix later
-    user = input('Enter username:')
-    user = str(user) 
-    while valid == False:
-        if len(user) > 10 or len(user) < 3:
-            #check username length
-            print('Username size incorrect.\nSize should be more than 3 characters \nand less than 10 characters. \nPlease try again.')
-            user = input('Enter username:')
-            continue
-        for character in user:
-            #check if username has invalid characters
+    
+    while not valid:
+        if len(user) > 10 or len(user) <3:
+            return False
+        if ' ' in user:
+            return False
+        for character in username:
+            #check if username contains invalid characters
             if character not in string.ascii_letters + string.digits:
-                invalid = True
-                #conditional for following loop to use    
-        
-        if invalid:
-            print('Invalid username, please try again.')
-            invalid = False
-            user = input('Enter username:')
-            continue
+                return False
+            else:
+                valid = True
+                return True
 
-        if username_taken(user):
-            print('Username already taken, please try again.')
-            user = input('Enter username:')
-            continue
-        
-        else:
-            #creating new password
-            print(f"Username is available.\nYour username is: {user}")
-            password = create_password()
 
-            #store username and password in file
-            password = hash_password(password)
-            store_user_and_hashed_pw(user, password)
+def account_creation(username,password):
+    '''attempts to hash password and then store username+password in database, if this 
+    process completes returns True, else returns False'''
+    #store username and password in file
+    try:
+        password = hash_password(password)
+        store_user_and_hashed_pw(username, password)
+        return True
+    except:
+        return False
 
-            valid = True
-     
-    return 
         
 def generate_password():
     '''generates random uppercase + lowercase + 9 numbers followed by a punctuation
@@ -306,8 +313,6 @@ def test_account_login():
                 return error
             
 #######################MODULE TESTING PACKAGE######################################
-
-
 
 
 
