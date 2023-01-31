@@ -31,7 +31,9 @@ class LogWindow(QDialog):
         #setting fixed window size
         self.setFixedSize(QSize(375,450))
         self.userLabel = QLabel('Username')
+        self.userLabel.setFont(QFont('Arial',7))
         self.passLabel = QLabel('Password')
+        self.passLabel.setFont(QFont('Arial',7))
 
         self.textName = QLineEdit()
         self.textName.setAutoFillBackground(True)
@@ -70,11 +72,13 @@ class LogWindow(QDialog):
         checkLayout = QHBoxLayout()
         #checkLayout.addWidget(QWidget())
         self.showPass = QCheckBox('&Show password')
+        #self.showPass.setFont(QFont, 'Arial', 7)
         
         #allowing the checkbox to show background color whenever unchecked
         #VERY difficult code to find
         self.showPass.setStyleSheet("QCheckBox::indicator:unchecked"
                                "{"
+                               "Border : 1px solid #5A5A5A ;"
                                "Background : rgb(255,253,208) ;"
                                "}")
 
