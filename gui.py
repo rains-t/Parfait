@@ -1,5 +1,5 @@
 import sys
-from PyQt5.QtCore import Qt, QSize
+from PyQt5.QtCore import Qt, QSize, pyqtSignal, QObject
 from PyQt5.QtGui import QIcon, QPalette, QColor, QFont
 from PyQt5.QtWidgets import *
 from PCore import *
@@ -15,14 +15,19 @@ class Color(QWidget):
 
 
 class LogWindow(QDialog):
-    def __init__(self):
-        super().__init__()
+    #identity = pyqtSignal(str)
+
+    def __init__(self, parent):
+        super().__init__(parent)
         self.setWindowTitle('Parfait')
+
         #setting color
         pal = QPalette()
         role = QPalette.Background
         pal.setColor(role, QColor(255, 251, 162))
         self.setPalette(pal)
+        
+        
 
         
         #setting fixed window size
@@ -163,26 +168,35 @@ class LogWindow(QDialog):
         layout.addWidget(QWidget(),6,0)
         #adding checkbox to main layout
         layout.addLayout(checkLayout,3,2)
-        
 
     def handleLogin(self):
         username = self.textName.text()
         password = self.textPass.text()
+        
 
         if log_in(username, password) == True:
             #QMessageBox.information(self, ' ', 'logging in')
-            self.close()
+            #self.identitySignal(username)
+            self.closeAndReturn()
+
             #send to main window if log in verified
-            self.openMainWindow()
+            #self.openMainWindow()
 
         else:
             QMessageBox.warning(self, 'Error', 'Invalid username or password')
             #in future create a counter for if username == valid and password False 4 times in a row
             #account will be locked out
 
+    def identitySignal(self,user):
+        self.identity.emit(user)
+
+    def testTrigger(self):
+        print('signal sent')
+
+
     def handleCreate(self):
         #send to account creation page
-        self.close()
+        #self.hide()
         self.openAccountCreationPage()
 
     def checkedBox(self):
@@ -192,29 +206,56 @@ class LogWindow(QDialog):
         else:
             self.textPass.setEchoMode(QLineEdit.Password)
 
-    def openMainWindow(self):
+    # def openMainWindow(self):
+    #     self.close()
+    #     self.mainApp = MainWindow()
+    #     self.mainApp.show()
+    def closeAndReturn(self):
+        self.deleteLater()
         self.close()
-        self.mainApp = MainWindow()
-        self.mainApp.show()
+        self.parent().show()
 
     def openAccountCreationPage(self):
-        self.accCreation = AccountCreationPage()
+        # self.accCreation = AccountCreationPage()
+        # self.accCreation.show()
+        self.accCreation = AccountCreationPage(self)
+        self.hide()
         self.accCreation.show()
 
 
 
 
 class MainWindow(QMainWindow):
+    
     def __init__(self):
         super().__init__()
         self.setWindowTitle('Parfait')
         self.setMinimumSize(500,500)
-        widget = QWidget()
-        self.setCentralWidget(widget)
+        self.login()
+        self.widget = QLabel()
+        self.setCentralWidget(self.widget)
+
+
+
+    def login(self):
+        self.logPage = LogWindow(self)
+        self.logPage.show()
+
+        self.logPage.logButton.clicked.connect(self.getIdentity)
+        
+
+    def getIdentity(self):
+        self.identity = self.logPage.textName.text()
+        #text = self.logPage.textName.text()
+        print(self.identity)
+        self.widget.setText(self.identity)
+
+        
+
 
 class AccountCreationPage(QDialog):
-    def __init__(self):
-        super().__init__()
+    def __init__(self, parent):
+        super().__init__(parent)
         self.setWindowTitle('Parfait')
 
         #setting bg color
@@ -228,7 +269,7 @@ class AccountCreationPage(QDialog):
         layout = QGridLayout()
         labelLayout = QVBoxLayout()
         textLayout = QVBoxLayout()
-        buttonLayout = QHBoxLayout()
+
 
         self.setLayout(layout)
 
@@ -308,6 +349,27 @@ class AccountCreationPage(QDialog):
                                "}")
         self.createAccButton.clicked.connect(self.handleCreate)
 
+        self.pageBackButton = QPushButton('Back to Log In')
+        self.pageBackButton.setAutoFillBackground(True)
+        self.pageBackButton.setStyleSheet("QPushButton"
+                               "{"
+                               
+                               "Border : 1px solid #adadad ;"
+                               "Background : rgb(255,253,208) ;"
+                               "border-radius: 10px;"
+                               "padding : 4px;"
+                               "border-style : outset;"
+                               "max-width : 200px;"
+
+                               "}"
+                               "QPushButton:hover:!pressed"
+                               "{"
+                               "Border : 1px solid #637bff ;"
+                               "Background : #dfe5e8 ;"                            
+                               "}")
+
+        self.pageBackButton.clicked.connect(self.closeAndReturn)
+
         labelLayout.addWidget(self.userLabel)
         labelLayout.addWidget(self.passLabel)
         labelLayout.addWidget(self.retypePassLabel)
@@ -317,13 +379,14 @@ class AccountCreationPage(QDialog):
         textLayout.addWidget(self.retypeUserPass)
 
         #adding free space to grid layout
-        layout.addLayout(labelLayout,2,1,1,3)
-        layout.addLayout(textLayout,2,4,1,2)
+        layout.addLayout(labelLayout,1,1,1,3)
+        layout.addLayout(textLayout,1,4,1,2)
         layout.addWidget(QWidget(),1,1)
         layout.addWidget(QWidget(),4,0)
         layout.addWidget(QWidget(),5,0)
-        layout.addWidget(self.createAccButton, 4,2,1,3)
-        layout.addWidget(pageLabel,1,2,1,3)
+        layout.addWidget(self.createAccButton, 3,2,1,3)
+        layout.addWidget(self.pageBackButton,4,2,1,3)
+        layout.addWidget(pageLabel,0,2,1,3)
 
     def handleCreate(self):
         username = self.userName.text()
@@ -368,23 +431,18 @@ class AccountCreationPage(QDialog):
             self.userName.clear()
             self.userPass.clear()
             self.retypeUserPass.clear()
-            self.close()
-            self.openLoginPage()
+            self.closeAndReturn()
+            # self.close()
+            # self.openLoginPage()
 
-    def openLoginPage(self):
-        self.window = LogWindow()
-        self.window.show()
+    def closeAndReturn(self):
+        self.deleteLater()
+        self.close()
+        self.parent().show()
+
+
                                             
-
-
-
-
-
-
-
-
-        
-        
+    
 
 
 
@@ -397,8 +455,8 @@ class AccountCreationPage(QDialog):
 
 def main():
     app = QApplication(sys.argv)
-    window = LogWindow()
-    window.show()
+    window = MainWindow()
+    window.hide()
     sys.exit(app.exec())
     
 
