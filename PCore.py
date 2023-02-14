@@ -3,6 +3,7 @@ import secrets
 import string
 import bcrypt
 import json
+import pyodbc
 
 #Parfait core code
 
@@ -19,7 +20,6 @@ def username_taken(user):
                     return True     
         except:
             return   
-
 
 def create_password(password):
     '''Password must conform to generated password standards, at least: one uppercase
@@ -126,7 +126,6 @@ def validate_username(username):
                 valid = True
                 return True
 
-
 def account_creation(username,password):
     '''attempts to hash password and then store username+password in database, if this 
     process completes returns True, else returns False'''
@@ -137,7 +136,6 @@ def account_creation(username,password):
         return True
     except:
         return False
-
         
 def generate_password():
     '''generates random uppercase + lowercase + 9 numbers followed by a punctuation
@@ -227,6 +225,142 @@ def log_in(username, plaintext_password):
         #return False
         return credentials
 
+#########################SQL UPDATE PACKAGE######################################
+class sql_controls():
+    def __init__(self):
+        self.sql_connect()
+
+    def sql_connect(self):
+        self.connection = pyodbc.connect('DRIVER={ODBC Driver 17 for SQL Server};SERVER=localhost\SQLEXPRESS;Database=master;Trusted_Connection=yes;')
+        self.cursor = self.connection.cursor()
+
+
+    def username_taken(self,user):
+        '''check if username is already taken, return True if username found
+        False if not.'''
+        user = user.capitalize()
+        print(user)
+        query = ''' SELECT UserName FROM ParfaitDB.dbo.LogInfo WHERE UserName = (?) '''
+        try:
+            self.cursor.execute(query,user)
+            data = self.cursor.fetchone()[0]
+            if data:
+                return True
+
+        except:
+            return False
+        
+    
+    def email_taken(self,email):
+        '''checking if email is already taken in database. Return True if found, False if not.'''
+
+        query = '''SELECT Email FROM ParfaitDB.dbo.UserTable WHERE Email = (?) '''
+        try:
+            self.cursor.execute(query,email)
+            data = self.cursor.fetchone()[0]
+            if data:
+                return True
+
+        except:
+            return False
+
+    def store_email(self,email):
+        '''storing email that has been checked into SQL database, if error happens returns False'''
+        query = '''INSERT INTO ParfaitDB.dbo.UserTable (Email)
+                        VALUES ( ? )'''        
+        try:
+            self.cursor.execute(query,email)
+            self.connection.commit()
+            
+        except:
+            return False
+
+    def append_id(self,email):
+        '''appending UserID from database, this is used after email is entered and new
+        autoincremented UserID is created. UserID is the Primary Key for UserTable'''
+
+        query = '''SELECT UserID FROM ParfaitDB.dbo.UserTable WHERE Email = ( ? )'''
+        try:
+            self.cursor.execute(query,email)
+            user_id = self.cursor.fetchone()[0]
+            return user_id
+
+        except:
+            return False
+
+
+
+    def store_user_info(self,email,user,password):
+        '''storing all info from the account creation process into the SQL DB'''
+        user = user.capitalize()
+        hashed_password = self.hash_password(password)
+        decoded_password = hashed_password.decode('utf-8')
+
+        self.store_email(email)
+        id = self.append_id(email)
+        update_query = '''INSERT INTO ParfaitDB.dbo.AccountInfo (UserName)
+                                VALUES ( ? ) '''
+        store_query = '''INSERT INTO ParfaitDB.dbo.LogInfo (UserName, [Password], UserID)
+                            VALUES ( ?, ?, ? )'''
+
+        #store query must execute before update query, otherwise no foreign key match
+        self.cursor.execute(store_query,(user,decoded_password,id))
+        self.cursor.execute(update_query,user)
+
+        self.connection.commit()
+
+    def locate_password(self,user):
+        '''checking against username for hashed password, if username does not exist return False'''
+        user = user.capitalize()
+        query = '''SELECT [Password] FROM ParfaitDB.dbo.LogInfo WHERE UserName = ( ? )'''
+
+        try:
+            self.cursor.execute(query,user)
+            password = self.cursor.fetchone()[0].encode('utf-8')
+            #data[user].encode('utf-8')
+            return password
+
+        except:
+            return False
+
+
+    def hash_password(self,plaintext_password):
+        '''salts and hashes a plain text password'''
+        #Hash the password
+        #gensalt(slowness_level)
+        return bcrypt.hashpw(plaintext_password.encode('utf-8'), bcrypt.gensalt(8))
+
+    def authenticate(self, plaintext_password, hashed_password):
+        '''checks the hashed password taking the plaintext_password and the hashed password 
+        as arguments'''
+
+        #checking the hashed password, bcrypt has already saved the salt to the hash itself
+        return bcrypt.checkpw(plaintext_password.encode('utf-8'), hashed_password)
+
+
+    def log_in(self,user,password):
+        '''verifies a username is valid, finds hashed password and then verifies
+        against the plain text password entered'''
+        #check if username matches reference DB and return hashed password
+        credentials = self.locate_password(user)
+
+        if not credentials == False:
+            #if username matches, authenticate password against hashed password
+            #credentials now = True or False
+            credentials =  self.authenticate(password, credentials)
+            #return True or False
+            return credentials
+        else:
+            #return False
+            return credentials
+
+
+
+
+
+
+
+#########################SQL UPDATE PACKAGE######################################
 
 #######################MODULE TESTING PACKAGE####################################
 
