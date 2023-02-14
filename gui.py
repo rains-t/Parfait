@@ -174,7 +174,7 @@ class LogWindow(QDialog):
         password = self.textPass.text()
         
 
-        if log_in(username, password) == True:
+        if sql_controls().log_in(username, password) == True:
             #QMessageBox.information(self, ' ', 'logging in')
             #self.identitySignal(username)
             self.closeAndReturn()
@@ -273,10 +273,13 @@ class AccountCreationPage(QDialog):
 
         self.setLayout(layout)
 
-        self.userLabel = QLabel('Enter username')
+        self.userEmailLabel = QLabel('Email')
+        self.userEmailLabel.setFont(QFont('Arial',9))
+
+        self.userLabel = QLabel('Username')
         self.userLabel.setFont(QFont('Arial',9))
 
-        self.passLabel = QLabel('Enter password')
+        self.passLabel = QLabel('Password')
         self.passLabel.setFont(QFont('Arial', 9))
 
         self.retypePassLabel = QLabel('Retype password')
@@ -284,6 +287,23 @@ class AccountCreationPage(QDialog):
 
         pageLabel = QLabel('Create an account')
         pageLabel.setFont(QFont('Arial', 15))
+
+        self.userEmail = QLineEdit()
+        self.userEmail.setFont(QFont('Arial', 9))
+        self.userEmail.setAutoFillBackground(True)
+        self.userEmail.setStyleSheet("QLineEdit"
+                               "{"
+                               "Border : 1px solid #adadad ;"
+                               "Background : rgb(255,253,208) ;"
+                               "}"
+                               "QLineEdit:hover"
+                               "{"
+                               "Border : 1px solid #637bff ;"
+                               "Background : #dfe5e8 ;"                            
+                               "}")
+
+        self.userEmail.setObjectName('email')
+
 
         self.userName = QLineEdit()
         self.userName.setFont(QFont('Arial', 9))
@@ -369,37 +389,51 @@ class AccountCreationPage(QDialog):
                                "}")
 
         self.pageBackButton.clicked.connect(self.closeAndReturn)
+        
 
+        labelLayout.addWidget(self.userEmailLabel)
         labelLayout.addWidget(self.userLabel)
         labelLayout.addWidget(self.passLabel)
         labelLayout.addWidget(self.retypePassLabel)
 
+        textLayout.addWidget(self.userEmail)
         textLayout.addWidget(self.userName)
         textLayout.addWidget(self.userPass)
         textLayout.addWidget(self.retypeUserPass)
 
         #adding free space to grid layout
-        layout.addLayout(labelLayout,1,1,1,3)
-        layout.addLayout(textLayout,1,4,1,2)
-        layout.addWidget(QWidget(),1,1)
+        layout.addLayout(labelLayout,1,1,1,1)
+        layout.addLayout(textLayout,1,2,1,2)
+        layout.addWidget(QWidget(),1,5)
+        layout.addWidget(QWidget(),1,5)
+        layout.addWidget(QWidget(),1,0)
         layout.addWidget(QWidget(),4,0)
         layout.addWidget(QWidget(),5,0)
-        layout.addWidget(self.createAccButton, 3,2,1,3)
-        layout.addWidget(self.pageBackButton,4,2,1,3)
-        layout.addWidget(pageLabel,0,2,1,3)
+        layout.addWidget(self.createAccButton, 3,1,1,3)
+        layout.addWidget(self.pageBackButton,4,1,1,3)
+        layout.addWidget(pageLabel,0,1,1,3)
 
     def handleCreate(self):
+        email = self.userEmail.text()
         username = self.userName.text()
         password = self.userPass.text()
         retyped_password = self.retypeUserPass.text()
-        valid = False
-        print(username,password,retyped_password)
+
+
+        if sql_controls().email_taken(email):
+            QMessageBox.warning(self,'Error', 'Email already in use.')
+            self.userEmail.clear()
+            self.userName.clear()
+            self.userPass.clear()
+            self.retypeUserPass.clear()
+            return       
         
         if not validate_username(username):
             (QMessageBox.warning(self, 'Error', 
             'Invalid username: username must be between 3 and 10 characters, and contain no spaces or special characters.'))
+            return
 
-        if username_taken(username):
+        if sql_controls().username_taken(username):
             QMessageBox.warning(self,'Error','Username is already taken.')
             self.userName.clear()
             self.userPass.clear()
@@ -419,8 +453,11 @@ class AccountCreationPage(QDialog):
             self.retypeUserPass.clear()
 
             return
-        if not account_creation(username, password):
+
+
+        if sql_controls().create_account(email, username, password) == False:
             QMessageBox.warning(self,'Error','Something went wrong. Error code: 100')
+            self.userEmail.clear()
             self.userName.clear()
             self.userPass.clear()
             self.retypeUserPass.clear()
