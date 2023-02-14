@@ -239,7 +239,6 @@ class sql_controls():
         '''check if username is already taken, return True if username found
         False if not.'''
         user = user.capitalize()
-        print(user)
         query = ''' SELECT UserName FROM ParfaitDB.dbo.LogInfo WHERE UserName = (?) '''
         try:
             self.cursor.execute(query,user)
@@ -267,13 +266,12 @@ class sql_controls():
     def store_email(self,email):
         '''storing email that has been checked into SQL database, if error happens returns False'''
         query = '''INSERT INTO ParfaitDB.dbo.UserTable (Email)
-                        VALUES ( ? )'''        
-        try:
-            self.cursor.execute(query,email)
-            self.connection.commit()
-            
-        except:
-            return False
+                        VALUES ( ? )''' 
+      
+        self.cursor.execute(query,email)
+        #self.connection.commit()
+                
+
 
     def append_id(self,email):
         '''appending UserID from database, this is used after email is entered and new
@@ -290,24 +288,30 @@ class sql_controls():
 
 
 
-    def store_user_info(self,email,user,password):
+    def create_account(self,email,user,password):
         '''storing all info from the account creation process into the SQL DB'''
         user = user.capitalize()
         hashed_password = self.hash_password(password)
         decoded_password = hashed_password.decode('utf-8')
 
         self.store_email(email)
+
+        
         id = self.append_id(email)
         update_query = '''INSERT INTO ParfaitDB.dbo.AccountInfo (UserName)
                                 VALUES ( ? ) '''
         store_query = '''INSERT INTO ParfaitDB.dbo.LogInfo (UserName, [Password], UserID)
                             VALUES ( ?, ?, ? )'''
 
-        #store query must execute before update query, otherwise no foreign key match
-        self.cursor.execute(store_query,(user,decoded_password,id))
-        self.cursor.execute(update_query,user)
+        try:
+            #store query must execute before update query, otherwise no foreign key match
+            self.cursor.execute(store_query,(user,decoded_password,id))
+            self.cursor.execute(update_query,user)
 
-        self.connection.commit()
+            self.connection.commit()
+            self.connection.close()
+        except:
+            return False
 
     def locate_password(self,user):
         '''checking against username for hashed password, if username does not exist return False'''
@@ -353,6 +357,15 @@ class sql_controls():
         else:
             #return False
             return credentials
+
+    def wipe_database(self):
+        query = '''DELETE FROM ParfaitDB.dbo.AccountInfo
+                    DELETE FROM ParfaitDB.dbo.LogInfo
+                    DELETE FROM ParfaitDB.dbo.UserTable'''
+        self.cursor.execute(query)
+        self.connection.commit()
+        self.connection.close()
+        
 
 
 
