@@ -7,20 +7,6 @@ import pyodbc
 
 #Parfait core code
 
-def username_taken(user):
-    '''Check if username is taken, returns True if username already 
-    located in database'''
-    with open(r'C:\Users\Public\Hashed Passwords\Hashed.txt', 'a+') as file:
-    #moving to start of file
-        file.seek(0)
-        try:
-            data = json.loads(file.read())
-            for username in data:
-                if user.lower() == username.lower():
-                    return True     
-        except:
-            return   
-
 def create_password(password):
     '''Password must conform to generated password standards, at least: one uppercase
      letter, one lowercase letter, 8 digits and one symbol, eg. Ab12345678!
@@ -125,17 +111,6 @@ def validate_username(username):
             else:
                 valid = True
                 return True
-
-def account_creation(username,password):
-    '''attempts to hash password and then store username+password in database, if this 
-    process completes returns True, else returns False'''
-    #store username and password in file
-    try:
-        password = hash_password(password)
-        store_user_and_hashed_pw(username, password)
-        return True
-    except:
-        return False
         
 def generate_password():
     '''generates random uppercase + lowercase + 9 numbers followed by a punctuation
@@ -148,84 +123,8 @@ def generate_password():
         password = password.capitalize()
     return password
 
-def store_user_and_hashed_pw(user, hashed_pw):
-    '''stores username and hashed password in a text file as a dictionary'''
-    user = user.lower()
-    hashed_pw = hashed_pw.decode('utf-8')
-    pw_dict = {user:hashed_pw}
+###############################SQL DB UPDATE PACKAGE##########################################
 
-    with open(r'C:\Users\Public\Hashed Passwords\Hashed.txt', 'r+') as file:
-        file.seek(0)
-        data = file.read(1)
-        if len(data) < 1:
-            #decoding hashed pw for json to write it
-            file.write(json.dumps(pw_dict))
-
-        else:
-            file.seek(0)
-            data = file.read()
-            #changing back into a dictionary
-            data = json.loads(data)
-            #adding new user/pass combo
-            data[user] = hashed_pw
-            #deleting previous list
-            #if error occured between deletion and insertion feasibly there could be
-            #a huge bug where all data on passwords gets lost without being replaced, so this
-            #would not be a stable option for a server
-            #add a password save backup before this step
-            file.truncate(0)
-            #moving back to start for no whitespace
-            file.seek(0)
-            file.write(json.dumps(data))
-
-def hash_password(plaintext_password):
-    '''salts and hashes a plain text password'''
-    #Hash the password
-    #gensalt(slowness_level)
-    return bcrypt.hashpw(plaintext_password.encode('utf-8'), bcrypt.gensalt(8))
-
-def authenticate(plaintext_password, hashed_password):
-    '''checks the hashed password taking the plaintext_password and the hashed password 
-    as arguments'''
-
-    #checking the hashed password, bcrypt has already saved the salt to the hash itself
-    return bcrypt.checkpw(plaintext_password.encode('utf-8'), hashed_password)
-
-def locate_hashed_pw(username):
-    '''locates a username to verify it is in the database, if true
-    sends back the hashed version of their password'''
-    #if user or pass comes back incorrect, kick back False and throw up
-    #error that user or pass is incorrect
-    #place this function within authenticate function
-    #locate user first, then go off of user for password
-    with open(r'C:\Users\Public\Hashed Passwords\Hashed.txt', 'r') as file:
-        user_located = False
-        file.seek(0)
-        data = json.loads(file.read())
-        for user in data:
-            if username.lower() == user.lower():
-                user_located = True
-            if user_located:
-                return data[user].encode('utf-8')
-        else:
-            return False
-            
-def log_in(username, plaintext_password):
-    '''verifies a username is valid, finds hashed password and then verifies
-    against the plain text password entered'''
-    #check if username matches reference DB and return hashed password
-    credentials = locate_hashed_pw(username)
-    if not credentials == False:
-        #if username matches, authenticate password against hashed password
-        #credentials now = True or False
-        credentials =  authenticate(plaintext_password, credentials)
-        #return True or False
-        return credentials
-    else:
-        #return False
-        return credentials
-
-#########################SQL UPDATE PACKAGE######################################
 class sql_controls():
     def __init__(self):
         self.sql_connect()
@@ -359,6 +258,7 @@ class sql_controls():
             return credentials
 
     def wipe_database(self):
+        '''WARNING: This function will delete all data within the database.'''
         query = '''DELETE FROM ParfaitDB.dbo.AccountInfo
                     DELETE FROM ParfaitDB.dbo.LogInfo
                     DELETE FROM ParfaitDB.dbo.UserTable'''
@@ -366,17 +266,9 @@ class sql_controls():
         self.connection.commit()
         self.connection.close()
         
+###############################\SQL DB UPDATE PACKAGE#########################################
 
-
-
-
-
-
-
-#########################SQL UPDATE PACKAGE######################################
-
-#######################MODULE TESTING PACKAGE####################################
-
+##############################TXT DB TESTING PACKAGE##########################################
 
 def test_password_store(user, plaintext_password):
     '''function to store plaintext passwords FOR TEST ACCOUNTS ONLY'''
@@ -416,9 +308,9 @@ def bypass_creation():
     #store in test account file
     test_password_store(username,password)
     #salt and hash pw
-    hashed = hash_password(password)
+    hashed = txt_hash_password(password)
     #begin storing user + hashed password in real db file
-    store_user_and_hashed_pw(username, hashed)
+    txt_store_user_and_hashed_pw(username, hashed)
     
 def testing(accounts):
     '''using n number of accounts as an int as an argument, stress tests the 
@@ -442,11 +334,11 @@ def test_account_login():
         file.seek(0)
         data = json.loads(file.read())
         for user,password in data.items():
-            credentials = locate_hashed_pw(user)
+            credentials = txt_locate_hashed_pw(user)
             if credentials:
                 #if username matches, authenticate password against hashed password
                 #credentials now = True or False
-                credentials =  authenticate(password, credentials)
+                credentials =  txt_authenticate(password, credentials)
                 #return True or False
                 if credentials:
                     comment = f'{user} connected'
@@ -459,14 +351,113 @@ def test_account_login():
                 error = f'{user} connection failed'
                 return error
             
-#######################MODULE TESTING PACKAGE######################################
+##############################\TXT DB TESTING PACKAGE#########################################
 
+#################################OLD TXT DB CODE##############################################
 
+def txt_store_user_and_hashed_pw(user, hashed_pw):
+    '''stores username and hashed password in a text file as a dictionary'''
+    user = user.lower()
+    hashed_pw = hashed_pw.decode('utf-8')
+    pw_dict = {user:hashed_pw}
 
+    with open(r'C:\Users\Public\Hashed Passwords\Hashed.txt', 'r+') as file:
+        file.seek(0)
+        data = file.read(1)
+        if len(data) < 1:
+            #decoding hashed pw for json to write it
+            file.write(json.dumps(pw_dict))
 
+        else:
+            file.seek(0)
+            data = file.read()
+            #changing back into a dictionary
+            data = json.loads(data)
+            #adding new user/pass combo
+            data[user] = hashed_pw
+            #deleting previous list
+            #if error occured between deletion and insertion feasibly there could be
+            #a huge bug where all data on passwords gets lost without being replaced, so this
+            #would not be a stable option for a server
+            #add a password save backup before this step
+            file.truncate(0)
+            #moving back to start for no whitespace
+            file.seek(0)
+            file.write(json.dumps(data))
 
+def txt_hash_password(plaintext_password):
+    '''salts and hashes a plain text password'''
+    #Hash the password
+    #gensalt(slowness_level)
+    return bcrypt.hashpw(plaintext_password.encode('utf-8'), bcrypt.gensalt(8))
 
+def txt_authenticate(plaintext_password, hashed_password):
+    '''checks the hashed password taking the plaintext_password and the hashed password 
+    as arguments'''
 
+    #checking the hashed password, bcrypt has already saved the salt to the hash itself
+    return bcrypt.checkpw(plaintext_password.encode('utf-8'), hashed_password)
+
+def txt_locate_hashed_pw(username):
+    '''locates a username to verify it is in the database, if true
+    sends back the hashed version of their password'''
+    #if user or pass comes back incorrect, kick back False and throw up
+    #error that user or pass is incorrect
+    #place this function within authenticate function
+    #locate user first, then go off of user for password
+    with open(r'C:\Users\Public\Hashed Passwords\Hashed.txt', 'r') as file:
+        user_located = False
+        file.seek(0)
+        data = json.loads(file.read())
+        for user in data:
+            if username.lower() == user.lower():
+                user_located = True
+            if user_located:
+                return data[user].encode('utf-8')
+        else:
+            return False
+            
+def txt_log_in(username, plaintext_password):
+    '''verifies a username is valid, finds hashed password and then verifies
+    against the plain text password entered'''
+    #check if username matches reference DB and return hashed password
+    credentials = txt_locate_hashed_pw(username)
+    if not credentials == False:
+        #if username matches, authenticate password against hashed password
+        #credentials now = True or False
+        credentials =  txt_authenticate(plaintext_password, credentials)
+        #return True or False
+        return credentials
+    else:
+        #return False
+        return credentials
+
+def txt_account_creation(username,password):
+    '''attempts to hash password and then store username+password in database, if this 
+    process completes returns True, else returns False'''
+    #store username and password in file
+    try:
+        password = txt_hash_password(password)
+        txt_store_user_and_hashed_pw(username, password)
+        return True
+    except:
+        return False
+
+def txt_username_taken(user):
+    '''Check if username is taken, returns True if username already 
+    located in database'''
+    with open(r'C:\Users\Public\Hashed Passwords\Hashed.txt', 'a+') as file:
+    #moving to start of file
+        file.seek(0)
+        try:
+            data = json.loads(file.read())
+            for username in data:
+                if user.lower() == username.lower():
+                    return True     
+        except:
+            return   
+
+#################################\OLD TXT DB CODE#############################################
 
 
 
